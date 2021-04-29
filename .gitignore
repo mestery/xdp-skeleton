@@ -2,3 +2,4 @@
 src/docker
 src/goebpf
 src/kern/xdp.elf
+src/user/xdploader

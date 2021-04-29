@@ -29,29 +29,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define __linux__
-#include <stddef.h>
-#include <linux/in.h>
-#include <linux/if_ether.h>
-#include <linux/if_packet.h>
-#include <linux/if_vlan.h>
-#include <linux/ip.h>
-#include <linux/tcp.h>
-#include <linux/udp.h>
-#include <linux/icmp.h>
-#include <bpf_helpers.h>
-#include <bpf.h>
+#ifndef __XDP_MAPS_H
+#define __XDP_MAPS_H
 
-#include "xdp_maps.h"
+/* XDP enabled TX ports for redirect map */
+BPF_MAP_DEF(if_redirect) = {
+    .map_type    = BPF_MAP_TYPE_DEVMAP,
+    .key_size    = sizeof(__u32),
+    .value_size  = sizeof(__u32),
+    .max_entries = 64,
+};
+BPF_MAP_ADD(if_redirect);
 
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
-
-SEC("xdp")
-int xdp_skeleton(struct xdp_md *ctx)
-{
-    return XDP_PASS;
-}
-
-char _license[] SEC("license") = "GPL";
+#endif /* __XDP_MAPS_H */

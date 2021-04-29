@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-all: kern/xdp.elf
+all: user/xdploader kern/xdp.elf
 
 goebpf:
 	git clone https://github.com/dropbox/goebpf.git
@@ -11,3 +11,6 @@ docker: Dockerfile
 
 kern/xdp.elf: kern/xdp.c docker goebpf
 	docker run --rm -it -v "$(PWD)":/xdp/src -w /xdp/src/kern xdp-skeleton-build:latest clang-9 -g -O2 -target bpf -I/xdp/src/common -I/xdp/src/goebpf -I/usr/include/x86_64-linux-gnu -c xdp.c -o xdp.elf
+
+user/xdploader: user/main.go docker goebpf
+	docker run --rm -it -v "$(PWD)":/opt/src/xdploader -w /opt/src/xdploader/user xdp-skeleton-build:latest go build -ldflags="-s -w" -o xdploader
