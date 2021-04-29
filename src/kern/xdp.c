@@ -48,10 +48,34 @@
 #define NULL ((void *)0)
 #endif
 
+static __always_inline
+__u32 xdp_stats_record_action(struct xdp_md *ctx, __u32 action)
+{
+    if (action >= XDP_ACTION_MAX)
+        return XDP_ABORTED;
+
+    /* Lookup in kernel BPF-side return pointer to actual data record */
+    struct datarec *rec = bpf_map_lookup_elem(&stats_map, &action);
+    if (!rec)
+        return XDP_ABORTED;
+
+    /*
+     * BPF_MAP_TYPE_PERCPU_ARRAY returns a data record specific to current
+     * CPU and XDP hooks runs under Softirq, which makes it safe to update
+     * without atomic operations.
+     */
+    rec->rx_packets++;
+    rec->rx_bytes += (ctx->data_end - ctx->data);
+
+    return action;
+}
+
 SEC("xdp")
 int xdp_skeleton(struct xdp_md *ctx)
 {
-    return XDP_PASS;
+    __u32 action = XDP_PASS;
+
+    return xdp_stats_record_action(ctx, action);
 }
 
 char _license[] SEC("license") = "GPL";

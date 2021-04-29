@@ -32,12 +32,34 @@
 #ifndef __XDP_MAPS_H
 #define __XDP_MAPS_H
 
+#include "bpf_helpers.h"
+
+/* This is the data record stored in the map */
+struct datarec {
+    __u64 rx_packets;
+    __u64 rx_bytes;
+};
+
+#ifndef XDP_ACTION_MAX
+#define XDP_ACTION_MAX (XDP_REDIRECT + 1)
+#endif
+
+BPF_MAP_DEF(stats_map) = {
+    .map_type        = BPF_MAP_TYPE_PERCPU_ARRAY,
+    .key_size        = sizeof(__u32),
+    .value_size      = sizeof(struct datarec),
+    .max_entries     = XDP_ACTION_MAX,
+    .persistent_path = "/sys/fs/bpf/stats_map",
+};
+BPF_MAP_ADD(stats_map);
+
 /* XDP enabled TX ports for redirect map */
 BPF_MAP_DEF(if_redirect) = {
     .map_type    = BPF_MAP_TYPE_DEVMAP,
     .key_size    = sizeof(__u32),
     .value_size  = sizeof(__u32),
     .max_entries = 64,
+    .persistent_path = "/sys/fs/bpf/if_redirect",
 };
 BPF_MAP_ADD(if_redirect);
 
