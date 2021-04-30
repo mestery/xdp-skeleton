@@ -35,7 +35,9 @@ sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
             python3-venv \
             python3-pip \
             linux-tools-common \
-            libdw1
+            libdw1 \
+            linux-tools-$(uname -r) \
+            linux-cloud-tools-$(uname -r)
 
 # Set some default network buffer values
 sudo sysctl -w net.core.rmem_default=134217728
