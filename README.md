@@ -167,6 +167,13 @@ $ vagrant ssh
 Now, once inside the VM, run the following commands:
 
 ```
+$ $ sudo /git/src/stats/statswatch -file /sys/fs/bpf/stats_map
+Found map stats_map of type Per-CPU array
+    XDP_ABORTED:  0 packets / 0 bytes
+    XDP_DROP:     0 packets / 0 bytes
+    XDP_PASS:     7 packets / 574 bytes
+    XDP_TX:       0 packets / 0 bytes
+    XDP_REDIRECT: 0 packets / 0 bytes
 $ sudo bpftool map show
 1: percpu_array  name stats_map  flags 0x0
 	key 4B  value 16B  max_entries 5  memlock 4096B

@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-all: user/xdploader kern/xdp.elf
+all: user/xdploader stats/statswatch kern/xdp.elf
 
 goebpf:
 	git clone https://github.com/dropbox/goebpf.git
@@ -14,3 +14,6 @@ kern/xdp.elf: kern/xdp.c kern/xdp_maps.h docker goebpf
 
 user/xdploader: user/main.go docker goebpf
 	docker run --rm -it -v "$(PWD)":/opt/src/xdploader -w /opt/src/xdploader/user xdp-skeleton-build:latest go build -ldflags="-s -w" -o xdploader
+
+stats/statswatch: stats/main.go docker goebpf
+	docker run --rm -it -v "$(PWD)":/opt/src/xdploader -w /opt/src/xdploader/stats xdp-skeleton-build:latest go build -ldflags="-s -w" -o statswatch
