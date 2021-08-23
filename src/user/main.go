@@ -32,11 +32,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/dropbox/goebpf"
 	"github.com/vishvananda/netlink"
 )
+
+const maxprogs int = 16
 
 func AttachXdp(x goebpf.Program, devMap goebpf.Map, iList []string) error {
 	for _, intf := range iList {
@@ -59,11 +62,75 @@ func AttachXdp(x goebpf.Program, devMap goebpf.Map, iList []string) error {
 	return nil
 }
 
-func FetchMaps(prog goebpf.System) (devMap goebpf.Map, err error) {
+func LoadJmpMap(bpf goebpf.System, jmp goebpf.Map) error {
+	var id string
+
+	fmt.Printf("Loading tail call jumps\n")
+
+	for _, prog := range bpf.GetPrograms() {
+		fmt.Printf("Loading program name %s\n", prog.GetName())
+		name := prog.GetName()
+		_, err := fmt.Sscanf(name, "xdp_skeleton_%s", &id)
+		if err != nil {
+			fmt.Printf("Error scanning %s: %s\n", err, name)
+			continue
+		}
+		intid, err := strconv.Atoi(id)
+		if err != nil {
+			fmt.Printf("Error converting string\n")
+			return err
+		}
+		if intid > maxprogs {
+			panic("Reached maximum number of programs, failing")
+		}
+		if id != "0" {
+			err = prog.Load()
+			if err != nil {
+				fmt.Printf("Error loading program %s:\n", name)
+				fmt.Printf("%s\n", err)
+				continue
+			}
+			fd := prog.GetFd()
+			fmt.Printf("Converting string (%s)\n", id)
+
+			fmt.Printf("Trying to insert (%d) into position (%d) in jmp_map\n", uint32(fd), intid)
+
+			if err := jmp.Upsert(intid, uint32(fd)); err != nil {
+				panic(err)
+			}
+		}
+	}
+	return nil
+}
+
+func FetchMaps(prog goebpf.System) (devMap, jmp goebpf.Map, err error) {
 	devMap = prog.GetMapByName("if_redirect")
 	if devMap == nil {
 		err = fmt.Errorf("failed fetching map if_redirect from program.\n")
 	}
+	jmp = prog.GetMapByName("jmp_map")
+	if jmp == nil {
+		err = fmt.Errorf("failed fetching map jmp_map from program.\n")
+	}
+
+	return
+}
+
+func DumpEbpfInfo(bpf goebpf.System, elf string) {
+	fmt.Printf("Dumping info for ELF file %s\n", elf)
+	fmt.Println("Maps:")
+	for _, item := range bpf.GetMaps() {
+		m := item.(*goebpf.EbpfMap)
+		fmt.Printf("\t%s: %v, Fd %v\n", m.Name, m.Type, m.GetFd())
+	}
+	fmt.Println("\nPrograms:")
+	for _, prog := range bpf.GetPrograms() {
+		fmt.Printf("\t%s: %v, size %d, license \"%s\"\n",
+			prog.GetName(), prog.GetType(), prog.GetSize(), prog.GetLicense(),
+		)
+	}
+	fmt.Println()
+
 	return
 }
 
@@ -86,13 +153,19 @@ func main() {
 	if err := bpf.LoadElf(xdpProgFile); err != nil {
 		panic(err)
 	}
+
+	DumpEbpfInfo(bpf, xdpProgFile)
+
+	devMap, jmp, err := FetchMaps(bpf)
+	if err != nil {
+		panic(err)
+	}
+
+	LoadJmpMap(bpf, jmp)
+
 	xdpProg := bpf.GetProgramByName("xdp_skeleton")
 	if xdpProg == nil {
 		panic(fmt.Sprintf("Could not find xdp_skeleton program in %s", xdpProgFile))
-	}
-	devMap, err := FetchMaps(bpf)
-	if err != nil {
-		panic(err)
 	}
 	if err := xdpProg.Load(); err != nil {
 		panic(err)

@@ -29,6 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define DEBUG
 #define __linux__
 #include <stddef.h>
 #include <linux/in.h>
@@ -47,6 +48,12 @@
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
+
+/* Used to parse the packet across calls */
+struct hdr_cursor {
+    struct xdp_md *ctx;
+    void *pos;
+};
 
 static __always_inline
 __u32 xdp_stats_record_action(struct xdp_md *ctx, __u32 action)
@@ -74,6 +81,127 @@ SEC("xdp")
 int xdp_skeleton(struct xdp_md *ctx)
 {
     __u32 action = XDP_PASS;
+    void *data_end = (void *)(long)ctx->data_end;
+    void *data = (void *)(long)ctx->data;
+    size_t data_len = ctx->data_end - ctx->data;
+    struct ethhdr *eth_header;
+    struct iphdr *ip_header;
+    struct hdr_cursor nh = {};
+
+    bpf_printk("xdp_skeleton: Entering function\n");
+
+    nh.ctx = ctx;
+    nh.pos = data;
+
+    eth_header = data;
+    if ((void *)eth_header + sizeof(*eth_header) > data_end) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    __u16 h_proto = eth_header->h_proto;
+
+    /* anything that is not IPv4 (including ARP) goes up to the kernel */
+    if (h_proto != __constant_htons(ETH_P_IP)) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    ip_header = (void *)(eth_header + 1);
+    if ((void *)ip_header + sizeof(*ip_header) > data_end) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    /* Example of tail-calling into another XDP program */
+    __u32 tckey = bpf_get_smp_processor_id();;
+    struct tail_call_cache *tailcall;
+
+    tailcall = bpf_map_lookup_elem(&tail_call, &tckey);
+    if (tailcall) {
+        tailcall->protocol = __constant_ntohs(ip_header->protocol);
+    } else {
+        action = XDP_DROP;
+        goto out;
+    }
+
+    if (bpf_map_update_elem(&tail_call, &tckey, tailcall, BPF_ANY) < 0) {
+        action = XDP_DROP;
+        goto out;
+    }
+
+    /* Tail call into hashing program */
+    bpf_tail_call(ctx, &jmp_map, 1);
+
+out:
+    return xdp_stats_record_action(ctx, action);
+}
+
+SEC("xdp")
+int xdp_skeleton_1(struct xdp_md *ctx)
+{
+    __u32 action = XDP_PASS;
+    struct tail_call_cache *tailcall;
+    __u32 tckey = bpf_get_smp_processor_id();;
+    void *data_end = (void *)(long)ctx->data_end;
+    void *data = (void *)(long)ctx->data;
+    size_t data_len = ctx->data_end - ctx->data;
+    struct ethhdr *eth_header;
+    struct iphdr *ip_header;
+    struct hdr_cursor nh = {};
+
+    bpf_printk("xdp_skeleton_1: Entering function\n");
+
+    nh.ctx = ctx;
+    nh.pos = data;
+
+    eth_header = data;
+    if ((void *)eth_header + sizeof(*eth_header) > data_end) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    __u16 h_proto = eth_header->h_proto;
+
+    /* anything that is not IPv4 (including ARP) goes up to the kernel */
+    if (h_proto != __constant_htons(ETH_P_IP)) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    ip_header = (void *)(eth_header + 1);
+    if ((void *)ip_header + sizeof(*ip_header) > data_end) {
+        action = XDP_PASS;
+        goto out;
+    }
+
+    tailcall = bpf_map_lookup_elem(&tail_call, &tckey);
+
+    if (!tailcall) {
+        return xdp_stats_record_action(ctx, XDP_DROP);
+    }
+
+    /* Validate the data passed in the tailcall is accurate */
+    if (ip_header->protocol == __constant_htons(tailcall->protocol)) {
+        bpf_printk("xdp_skeleton_1: Validated protocol (%x) successfully\n", tailcall->protocol);
+    } else {
+        bpf_printk("xdp_skeleton_1: Protocol mismatch\n");
+        goto out;
+    }
+
+    /* Tailcall into last program */
+    bpf_tail_call(ctx, &jmp_map, 2);
+
+out:
+    return xdp_stats_record_action(ctx, action);
+}
+
+SEC("xdp")
+int xdp_skeleton_2(struct xdp_md *ctx)
+{
+    __u32 action = XDP_PASS;
+
+    bpf_printk("xdp_skeleton_2: Entering function\n");
 
     return xdp_stats_record_action(ctx, action);
 }

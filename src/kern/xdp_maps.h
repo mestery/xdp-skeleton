@@ -63,4 +63,30 @@ BPF_MAP_DEF(if_redirect) = {
 };
 BPF_MAP_ADD(if_redirect);
 
+/* The maximum number of eBPF programs we support for tail call map */
+#define MAX_SNI_PROGS           16
+
+/* Cache between tail calls */
+struct tail_call_cache {
+    size_t                      protocol;
+} __attribute((packed));
+
+BPF_MAP_DEF(jmp_map) = {
+    .map_type           = BPF_MAP_TYPE_PROG_ARRAY,
+    .key_size           = sizeof(__u32),
+    .value_size         = sizeof(__u32),
+    .max_entries        = MAX_SNI_PROGS,
+    .persistent_path    = "/sys/fs/bpf/jmp_map",
+};
+BPF_MAP_ADD(jmp_map);
+
+BPF_MAP_DEF(tail_call) = {
+    .map_type           = BPF_MAP_TYPE_PERCPU_ARRAY,
+    .key_size           = sizeof(__u32),
+    .value_size         = sizeof(struct tail_call_cache),
+    .max_entries        = 64,
+    .persistent_path    = "/sys/fs/bpf/tail_call",
+};
+BPF_MAP_ADD(tail_call);
+
 #endif /* __XDP_MAPS_H */
