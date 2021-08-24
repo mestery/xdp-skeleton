@@ -42,6 +42,26 @@ type DataRec struct {
 	Rx_bytes   uint64
 }
 
+func ReadStatBuf(buf *bytes.Buffer, datarec *DataRec) (err error) {
+	var local_datarec DataRec
+
+	// Get the number of CPUs to loop the per-cpu maps
+	numCpus, err := goebpf.GetNumOfPossibleCpus()
+	if err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < numCpus; i++ {
+		if err := binary.Read(buf, binary.LittleEndian, &local_datarec); err != nil {
+			panic(err)
+		}
+		datarec.Rx_packets += local_datarec.Rx_packets
+		datarec.Rx_bytes += local_datarec.Rx_bytes
+	}
+
+	return
+}
+
 func main() {
 	var xdpMapFile, xdpMap string
 
@@ -66,7 +86,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := binary.Read(bytes.NewBuffer(xdp_aborted[:]), binary.LittleEndian, &datarec_aborted); err != nil {
+	abortbuf := bytes.NewBuffer(xdp_aborted)
+	if err := ReadStatBuf(abortbuf, &datarec_aborted); err != nil {
 		panic(err)
 	}
 
@@ -74,7 +95,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := binary.Read(bytes.NewBuffer(xdp_drop[:]), binary.LittleEndian, &datarec_drop); err != nil {
+	dropbuf := bytes.NewBuffer(xdp_drop)
+	if err := ReadStatBuf(dropbuf, &datarec_drop); err != nil {
 		panic(err)
 	}
 
@@ -82,7 +104,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := binary.Read(bytes.NewBuffer(xdp_pass[:]), binary.LittleEndian, &datarec_pass); err != nil {
+	passbuf := bytes.NewBuffer(xdp_pass)
+	if err := ReadStatBuf(passbuf, &datarec_pass); err != nil {
 		panic(err)
 	}
 
@@ -90,7 +113,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := binary.Read(bytes.NewBuffer(xdp_tx[:]), binary.LittleEndian, &datarec_tx); err != nil {
+	txbuf := bytes.NewBuffer(xdp_tx)
+	if err := ReadStatBuf(txbuf, &datarec_tx); err != nil {
 		panic(err)
 	}
 
@@ -98,7 +122,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := binary.Read(bytes.NewBuffer(xdp_redirect[:]), binary.LittleEndian, &datarec_redirect); err != nil {
+	redirectbuf := bytes.NewBuffer(xdp_redirect)
+	if err := ReadStatBuf(redirectbuf, &datarec_redirect); err != nil {
 		panic(err)
 	}
 
