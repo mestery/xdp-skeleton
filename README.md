@@ -91,14 +91,35 @@ net.ipv4.udp_rmem_min = 134217728
 net.ipv4.udp_wmem_min = 134217728 134217728 134217728
 + ethtool -K veth1 tso off
 + ip netns exec xdp ethtool -K veth2 tso off
-$ sudo /git/scripts/load.sh
 + ulimit -l unlimited
-+ mount bpffs /sys/fs/bpf -t bpf
++ '[' '!' -d /sys/fs/bpf ']'
 + /git/src/user/xdploader -file /git/src/kern/xdp.elf -i veth1
+Dumping info for ELF file /git/src/kern/xdp.elf
+Maps:
+	tail_call: Per-CPU array, Fd 8
+	stats_map: Per-CPU array, Fd 5
+	if_redirect: Device map, Fd 6
+	jmp_map: Array of programs, Fd 7
+
+Programs:
+	xdp_skeleton_2: XDP, size 344, license "GPL"
+	xdp_skeleton_1: XDP, size 1272, license "GPL"
+	xdp_skeleton: XDP, size 736, license "GPL"
+
+Loading tail call jumps
+Loading program name xdp_skeleton_2
+Converting string (2)
+Trying to insert (3) into position (2) in jmp_map
+Loading program name xdp_skeleton_1
+Converting string (1)
+Trying to insert (9) into position (1) in jmp_map
+Loading program name xdp_skeleton
+Error scanning unexpected EOF: xdp_skeleton
 Attaching program xdp_skeleton
 Looking for interface veth1
 Inserting ifIndex 17
 XDP code attached to veth1. To turn it off, use `ip -f link set dev %!s(MISSING) xdp off`
+$
 ```
 
 Verify the code is loaded by running the following command inside the VM:

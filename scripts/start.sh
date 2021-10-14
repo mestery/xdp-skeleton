@@ -42,3 +42,14 @@ ip netns exec xdp sysctl -w net.ipv4.udp_wmem_min="134217728 134217728 134217728
 # Turn off TSO
 ethtool -K veth1 tso off
 ip netns exec xdp ethtool -K veth2 tso off
+
+# Load the XDP programs
+ulimit -l unlimited
+
+# Mount bpffs if it's not mounted
+if [ ! -d "/sys/fs/bpf" ]
+then
+    mount bpffs /sys/fs/bpf -t bpf
+fi
+
+/git/src/user/xdploader -file /git/src/kern/xdp.elf -i veth1
