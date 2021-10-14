@@ -44,16 +44,11 @@
 #include <bpf.h>
 
 #include "xdp_maps.h"
+#include "xdp_parser.h"
 
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
-
-/* Used to parse the packet across calls */
-struct hdr_cursor {
-    struct xdp_md *ctx;
-    void *pos;
-};
 
 static __always_inline
 __u32 xdp_stats_record_action(struct xdp_md *ctx, __u32 action)
@@ -93,8 +88,7 @@ int xdp_skeleton(struct xdp_md *ctx)
     nh.ctx = ctx;
     nh.pos = data;
 
-    eth_header = data;
-    if ((void *)eth_header + sizeof(*eth_header) > data_end) {
+    if (parse_headers_ip(&nh, data_end, &eth_header, &ip_header) != 0) {
         action = XDP_PASS;
         goto out;
     }
@@ -103,12 +97,6 @@ int xdp_skeleton(struct xdp_md *ctx)
 
     /* anything that is not IPv4 (including ARP) goes up to the kernel */
     if (h_proto != __constant_htons(ETH_P_IP)) {
-        action = XDP_PASS;
-        goto out;
-    }
-
-    ip_header = (void *)(eth_header + 1);
-    if ((void *)ip_header + sizeof(*ip_header) > data_end) {
         action = XDP_PASS;
         goto out;
     }
@@ -155,8 +143,7 @@ int xdp_skeleton_1(struct xdp_md *ctx)
     nh.ctx = ctx;
     nh.pos = data;
 
-    eth_header = data;
-    if ((void *)eth_header + sizeof(*eth_header) > data_end) {
+    if (parse_headers_ip(&nh, data_end, &eth_header, &ip_header) != 0) {
         action = XDP_PASS;
         goto out;
     }
@@ -165,12 +152,6 @@ int xdp_skeleton_1(struct xdp_md *ctx)
 
     /* anything that is not IPv4 (including ARP) goes up to the kernel */
     if (h_proto != __constant_htons(ETH_P_IP)) {
-        action = XDP_PASS;
-        goto out;
-    }
-
-    ip_header = (void *)(eth_header + 1);
-    if ((void *)ip_header + sizeof(*ip_header) > data_end) {
         action = XDP_PASS;
         goto out;
     }
