@@ -4,3 +4,4 @@ src/goebpf
 src/kern/xdp.elf
 src/user/xdploader
 src/stats/statswatch
+src/tc/tc.elf
