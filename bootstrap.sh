@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+set -x
+
+sudo apt-get update
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
             make \
             gcc \
             clang \
@@ -26,7 +29,7 @@ sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
             flex \
             bison \
             cmake \
-            python \
+            python3.9 \
             libpcap-dev \
             python3 \
             python3-dev \
@@ -34,6 +37,7 @@ sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
             python3-virtualenv \
             python3-venv \
             python3-pip \
+            libdw1 \
             linux-tools-common \
             libdw1 \
             linux-tools-$(uname -r) \
@@ -53,4 +57,16 @@ sudo sysctl -w net.ipv4.udp_wmem_min="134217728 134217728 134217728"
 
 # Update pahole
 wget http://archive.ubuntu.com/ubuntu/pool/universe/d/dwarves-dfsg/dwarves_1.17-1_amd64.deb
-DEBIAN_FRONTEND=noninteractive sudo apt-get install ./dwarves_1.17-1_amd64.deb
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ./dwarves_1.17-1_amd64.deb
+
+# Install docker
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo groupadd docker
+sudo usermod -aG docker $USER

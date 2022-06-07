@@ -83,17 +83,18 @@ func LoadJmpMap(bpf goebpf.System, jmp goebpf.Map) error {
 		if intid > maxprogs {
 			panic("Reached maximum number of programs, failing")
 		}
+		fmt.Printf("Looking at program slot (%d)\n", intid)
 		if id != "0" {
 			err = prog.Load()
 			if err != nil {
 				fmt.Printf("Error loading program %s:\n", name)
-				fmt.Printf("%s\n", err)
-				continue
+				//fmt.Printf("%s\n", err)
+				panic(err)
 			}
 			fd := prog.GetFd()
 			fmt.Printf("Converting string (%s)\n", id)
 
-			fmt.Printf("Trying to insert (%d) into position (%d) in jmp_map\n", uint32(fd), intid)
+			fmt.Printf("Trying to insert FD (%d) into position (%d) in jmp_map\n", uint32(fd), intid)
 
 			if err := jmp.Upsert(intid, uint32(fd)); err != nil {
 				panic(err)

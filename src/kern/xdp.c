@@ -119,7 +119,7 @@ int xdp_skeleton(struct xdp_md *ctx)
     }
 
     /* Tail call into hashing program */
-    bpf_tail_call(ctx, &jmp_map, 1);
+    bpf_tail_call(ctx, &jmp_map, (__u32)1);
 
 out:
     return xdp_stats_record_action(ctx, action);
@@ -171,7 +171,7 @@ int xdp_skeleton_1(struct xdp_md *ctx)
     }
 
     /* Tailcall into last program */
-    bpf_tail_call(ctx, &jmp_map, 2);
+    bpf_tail_call(ctx, &jmp_map, (__u32)2);
 
 out:
     return xdp_stats_record_action(ctx, action);

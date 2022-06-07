@@ -1,8 +1,7 @@
-FROM ubuntu:latest
+FROM ubuntu:jammy
 
 RUN apt-get -y update
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install clang-9 libclang-9-dev libllvm9 libelf-dev git golang llvm-9-dev gcc flex bison cmake python libpcap-dev -y 
+RUN DEBIAN_FRONTEND="noninteractive" apt-get install -y tzdata build-essential git cmake zlib1g-dev libevent-dev libelf-dev llvm clang libc6-dev-i386 golang
 
 RUN mkdir -p /opt/src
 WORKDIR /opt/src
