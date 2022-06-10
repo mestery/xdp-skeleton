@@ -34,10 +34,7 @@ sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
             python3-virtualenv \
             python3-venv \
             python3-pip \
-            linux-tools-common \
-            libdw1 \
-            linux-tools-$(uname -r) \
-            linux-cloud-tools-$(uname -r)
+            libdw1
 
 # Set some default network buffer values
 sudo sysctl -w net.core.rmem_default=134217728
@@ -54,3 +51,15 @@ sudo sysctl -w net.ipv4.udp_wmem_min="134217728 134217728 134217728"
 # Update pahole
 wget http://archive.ubuntu.com/ubuntu/pool/universe/d/dwarves-dfsg/dwarves_1.17-1_amd64.deb
 DEBIAN_FRONTEND=noninteractive sudo apt-get install ./dwarves_1.17-1_amd64.deb
+
+# Install docker
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo groupadd docker
+sudo usermod -aG docker $USER

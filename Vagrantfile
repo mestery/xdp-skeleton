@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     v.memory = 16384
   end
 
-  config.vm.box = "kwilczynski/ubuntu-20.04-docker"
+  config.vm.box = "debian/bullseye64"
   config.vm.hostname = "xdp-skeleton"
 
   config.vm.synced_folder ".", "/git"
