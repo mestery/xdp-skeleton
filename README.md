@@ -11,7 +11,7 @@ platform to use with Vagrant. Virtualbox works great here.
 
 ### Run Vagrant
 
-```
+```console
 $ vagrant up
 ```
 
@@ -19,13 +19,13 @@ $ vagrant up
 
 Log into the VM:
 
-```
+```console
 $ vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
 
-```
+```console
 $ cd /git/src
 $ make
 ```
@@ -34,13 +34,13 @@ $ make
 
 Log into the VM:
 
-```
+```console
 $ vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
 
-```
+```console
 $ sudo /git/scripts/start.sh
 + for i in /proc/sys/net/ipv4/conf/*/rp_filter
 + echo 0
@@ -124,7 +124,7 @@ $
 
 Verify the code is loaded by running the following command inside the VM:
 
-```
+```console
 $ ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -146,7 +146,7 @@ $ ip a
 
 Note in the above that veth1 has the xdp program loaded. It's highlighted below:
 
-```
+```console
 17: veth1@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 xdpgeneric/id:125 qdisc noqueue state UP group default qlen 1000
 ```
 
@@ -154,14 +154,14 @@ Note in the above that veth1 has the xdp program loaded. It's highlighted below:
 
 Log into the VM:
 
-```
+```console
 $ vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands, which will ping from veth1
 on the host into veth2 in the xdp namespace:
 
-```
+```console
 $ ping 10.2.2.2 -c 5
 PING 10.2.2.2 (10.2.2.2) 56(84) bytes of data.
 64 bytes from 10.2.2.2: icmp_seq=1 ttl=64 time=0.038 ms
@@ -181,13 +181,13 @@ $
 
 Log into the VM:
 
-```
+```console
 $ vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
 
-```
+```console
 $ $ sudo /git/src/stats/statswatch -file /sys/fs/bpf/stats_map
 Found map stats_map of type Per-CPU array
     XDP_ABORTED:  0 packets / 0 bytes
