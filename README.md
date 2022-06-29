@@ -40,6 +40,7 @@ vagrant ssh
 
 Now, once inside the VM, run the following commands:
 
+<!-- markdownlint-disable -->
 ```console
 $ sudo /git/scripts/start.sh
 + for i in /proc/sys/net/ipv4/conf/*/rp_filter
@@ -121,9 +122,11 @@ Inserting ifIndex 17
 XDP code attached to veth1. To turn it off, use `ip -f link set dev %!s(MISSING) xdp off`
 $
 ```
+<!-- markdownlint-restore -->
 
 Verify the code is loaded by running the following command inside the VM:
 
+<!-- markdownlint-disable -->
 ```console
 $ ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
@@ -143,12 +146,15 @@ $ ip a
     inet 10.2.2.1/24 scope global veth1
        valid_lft forever preferred_lft forever
 ```
+<!-- markdownlint-restore -->
 
 Note in the above that veth1 has the xdp program loaded. It's highlighted below:
 
+<!-- markdownlint-disable -->
 ```console
 17: veth1@if16: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 xdpgeneric/id:125 qdisc noqueue state UP group default qlen 1000
 ```
+<!-- markdownlint-restore -->
 
 ### Try a Ping
 
