@@ -12,7 +12,7 @@ platform to use with Vagrant. Virtualbox works great here.
 ### Run Vagrant
 
 ```console
-$ vagrant up
+vagrant up
 ```
 
 ### Build the Code
@@ -20,14 +20,14 @@ $ vagrant up
 Log into the VM:
 
 ```console
-$ vagrant ssh
+vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
 
 ```console
-$ cd /git/src
-$ make
+cd /git/src
+make
 ```
 
 ### Load the Code
@@ -35,7 +35,7 @@ $ make
 Log into the VM:
 
 ```console
-$ vagrant ssh
+vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
@@ -96,15 +96,15 @@ net.ipv4.udp_wmem_min = 134217728 134217728 134217728
 + /git/src/user/xdploader -file /git/src/kern/xdp.elf -i veth1
 Dumping info for ELF file /git/src/kern/xdp.elf
 Maps:
-	tail_call: Per-CPU array, Fd 8
-	stats_map: Per-CPU array, Fd 5
-	if_redirect: Device map, Fd 6
-	jmp_map: Array of programs, Fd 7
+        tail_call: Per-CPU array, Fd 8
+        stats_map: Per-CPU array, Fd 5
+        if_redirect: Device map, Fd 6
+        jmp_map: Array of programs, Fd 7
 
 Programs:
-	xdp_skeleton_2: XDP, size 344, license "GPL"
-	xdp_skeleton_1: XDP, size 1272, license "GPL"
-	xdp_skeleton: XDP, size 736, license "GPL"
+        xdp_skeleton_2: XDP, size 344, license "GPL"
+        xdp_skeleton_1: XDP, size 1272, license "GPL"
+        xdp_skeleton: XDP, size 736, license "GPL"
 
 Loading tail call jumps
 Loading program name xdp_skeleton_2
@@ -155,7 +155,7 @@ Note in the above that veth1 has the xdp program loaded. It's highlighted below:
 Log into the VM:
 
 ```console
-$ vagrant ssh
+vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands, which will ping from veth1
@@ -176,13 +176,12 @@ rtt min/avg/max/mdev = 0.031/0.040/0.062/0.011 ms
 $
 ```
 
-
 ### Verify bpfmap
 
 Log into the VM:
 
 ```console
-$ vagrant ssh
+vagrant ssh
 ```
 
 Now, once inside the VM, run the following commands:
@@ -197,9 +196,9 @@ Found map stats_map of type Per-CPU array
     XDP_REDIRECT: 0 packets / 0 bytes
 $ sudo bpftool map show
 1: percpu_array  name stats_map  flags 0x0
-	key 4B  value 16B  max_entries 5  memlock 4096B
+        key 4B  value 16B  max_entries 5  memlock 4096B
 2: devmap  name if_redirect  flags 0x80
-	key 4B  value 4B  max_entries 64  memlock 4096B
+        key 4B  value 4B  max_entries 64  memlock 4096B
 $ sudo bpftool map dump id 1
 key:
 00 00 00 00
