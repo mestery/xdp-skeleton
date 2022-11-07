@@ -1,6 +1,6 @@
 module github.office.opendns.com/bersoare/jitd
 
-go 1.14
+go 1.19
 
 require (
 	github.com/dropbox/goebpf v0.0.0-20220926213112-398a646c8fc1
