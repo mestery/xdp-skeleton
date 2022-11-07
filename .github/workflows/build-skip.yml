@@ -1,0 +1,25 @@
+---
+name: 'Build and test xdp-skeleton'
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'src/**'
+      - '.github/workflows/build-skip.yml'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'src/**'
+      - '.github/workflows/build-skip.yml'
+
+concurrency:
+  # if workflow for PR or push is already running stop it, and start new one
+  group: xdp-skeleton-skip-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No xdp-skeleton ci test run required"'
