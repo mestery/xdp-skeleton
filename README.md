@@ -1,5 +1,6 @@
 # XDP Skeleton
 
+[![Build and test xdp-skeleton](https://github.com/mestery/xdp-skeleton/actions/workflows/build.yml/badge.svg)](https://github.com/mestery/xdp-skeleton/actions/workflows/build.yml)
 [![MarkdownLint](https://github.com/mestery/xdp-skeleton/actions/workflows/markdown.yml/badge.svg)](https://github.com/mestery/xdp-skeleton/actions/workflows/markdown.yml)
 
 Sample repository to learn XDP code. Includes a Vagrantfile to spinup a VM to
