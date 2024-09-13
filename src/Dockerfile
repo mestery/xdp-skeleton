@@ -1,8 +1,14 @@
 FROM debian:bookworm
 
-RUN apt-get -y update
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN DEBIAN_FRONTEND="noninteractive" apt-get install clang-9 libclang-9-dev libllvm9 libelf-dev git golang llvm-9-dev gcc flex bison cmake python libpcap-dev -y 
+# Update and install basic dependencies
+RUN apt-get -y update && \
+    DEBIAN_FRONTEND="noninteractive" apt-get install -y \
+    tzdata clang libclang-dev llvm-dev libelf-dev git golang gcc flex bison cmake python3 libpcap-dev linux-libc-dev
 
+# Install kernel headers for the architecture
+RUN apt-get -y install linux-headers-$(uname -r) || \
+    apt-get -y install linux-headers-generic
+
+# Create working directory
 RUN mkdir -p /opt/src
 WORKDIR /opt/src
