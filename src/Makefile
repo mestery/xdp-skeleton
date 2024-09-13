@@ -9,6 +9,18 @@ TC_HEADERS=tc/geneve.h \
 	   tc/stats.h \
 	   tc/tc_helpers.h
 
+# Detect architecture and set architecture-specific include paths
+ARCH := $(shell uname -m)
+
+# Set include paths based on architecture
+ifeq ($(ARCH), x86_64)
+    ARCH_INCLUDE = -I/usr/include/x86_64-linux-gnu
+else ifeq ($(ARCH), arm64)
+    ARCH_INCLUDE = -I/usr/include/aarch64-linux-gnu
+else
+    $(error Unsupported architecture: $(ARCH))
+endif
+
 all: user/xdploader stats/statswatch kern/xdp.elf tc/tc.elf
 
 goebpf:
@@ -19,7 +31,7 @@ docker: Dockerfile
 	touch docker
 
 kern/xdp.elf: kern/xdp.c $(KERN_HEADERS) docker goebpf
-	docker run --rm -v "$(PWD)":/xdp/src -w /xdp/src/kern xdp-skeleton-build:latest clang -m64 -g -O2 -target bpf -I/xdp/src/common -I/xdp/src/goebpf -I/usr/include/x86_64-linux-gnu -I/usr/include/aarch64-linux-gnu -I/opt/src/xdploader/goebpf -c xdp.c -o xdp.elf
+	docker run --rm -v "$(PWD)":/xdp/src -w /xdp/src/kern xdp-skeleton-build:latest clang -g -O2 -target bpf -I/xdp/src/common -I/xdp/src/goebpf $(ARCH_INCLUDE) -I/opt/src/xdploader/goebpf -c xdp.c -o xdp.elf
 
 user/xdploader: user/main.go docker goebpf
 	docker run --rm -v "$(PWD)":/opt/src/xdploader -w /opt/src/xdploader/user xdp-skeleton-build:latest go build -ldflags="-s -w" -o xdploader
@@ -28,4 +40,4 @@ stats/statswatch: stats/main.go docker goebpf
 	docker run --rm -v "$(PWD)":/opt/src/xdploader -w /opt/src/xdploader/stats xdp-skeleton-build:latest go build -ldflags="-s -w" -o statswatch
 
 tc/tc.elf: tc/tc.c $(TC_HEADERS) docker goebpf
-	docker run --rm -v "$(PWD)":/xdp/src -w /xdp/src/tc xdp-skeleton-build:latest clang -m64 -g -O2 -target bpf -I/xdp/src/common -I/xdp/src/goebpf -I/usr/include/x86_64-linux-gnu -I/usr/include/aarch64-linux-gnu -I/opt/src/xdploader/goebpf -c tc.c -o tc.elf
+	docker run --rm -v "$(PWD)":/xdp/src -w /xdp/src/tc xdp-skeleton-build:latest clang -g -O2 -target bpf -I/xdp/src/common -I/xdp/src/goebpf $(ARCH_INCLUDE) -I/opt/src/xdploader/goebpf -c tc.c -o tc.elf
