@@ -25,6 +25,9 @@ endif
 
 all: user/xdploader stats/statswatch kern/xdp.elf tc/tc.elf
 
+clean:
+	- rm -f kern/xdp.elf user/xdploader stats/statswatch tc/tc.elf docker
+
 goebpf:
 	git clone https://github.com/dropbox/goebpf.git
 
