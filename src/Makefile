@@ -15,10 +15,10 @@ ARCH := $(shell uname -m)
 # Set include paths based on architecture
 ifeq ($(ARCH), x86_64)
     ARCH_INCLUDE = -I/usr/include/x86_64-linux-gnu
-	CLANG_ARGS = -m64
+    CLANG_ARGS = -m64
 else ifeq ($(ARCH), arm64)
     ARCH_INCLUDE = -I/usr/include/aarch64-linux-gnu
-	CLANGS_ARGS =
+    CLANG_ARGS =
 else
     $(error Unsupported architecture: $(ARCH))
 endif
