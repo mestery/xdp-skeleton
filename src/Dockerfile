@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:trixie
 
 # Update and install basic dependencies
 RUN apt-get -y update && \

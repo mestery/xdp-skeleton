@@ -44,12 +44,11 @@ const maxprogs int = 16
 func AttachXdp(x goebpf.Program, devMap goebpf.Map, iList []string) error {
 	for _, intf := range iList {
 		fmt.Printf("Looking for interface %s\n", intf)
-		ifData, err := netlink.LinkByName(intf)
+		link, err := netlink.LinkByName(intf)
 		if err != nil {
-			fmt.Printf("1\n")
 			return err
 		}
-		ifIndex := ifData.Attrs().Index
+		ifIndex := link.Attrs().Index
 		if err := x.Attach(&goebpf.XdpAttachParams{Interface: intf, Mode: goebpf.XdpAttachModeSkb}); err != nil {
 			return err
 		}
