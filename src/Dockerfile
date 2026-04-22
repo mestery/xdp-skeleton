@@ -1,4 +1,4 @@
-FROM debian:trixie
+FROM debian:trixie-20260421
 
 # Update and install basic dependencies
 RUN apt-get -y update && \
