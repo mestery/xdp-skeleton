@@ -11,6 +11,8 @@ github.com/dropbox/goebpf v0.0.0-20221212193212-e568275f8431 h1:6oV1ZVfy3CTTOraB
 github.com/dropbox/goebpf v0.0.0-20221212193212-e568275f8431/go.mod h1:TDvsrjiza1Rbu6tqXcjajEQ5iTTN3dlS3CJqky3558w=
 github.com/dropbox/goebpf v0.0.0-20240319152541-e5e17f597ca3 h1:2gXeqR8MeqVVyFAkBSAj8/1NK5CVQeeZ51tEC011T6k=
 github.com/dropbox/goebpf v0.0.0-20240319152541-e5e17f597ca3/go.mod h1:TDvsrjiza1Rbu6tqXcjajEQ5iTTN3dlS3CJqky3558w=
+github.com/dropbox/goebpf v0.0.0-20260702124540-0b6322af795a h1:j5O7yaUHIfubLiYG/Yjww7gmIFB3xw3uupoL5Bvaj/0=
+github.com/dropbox/goebpf v0.0.0-20260702124540-0b6322af795a/go.mod h1:a11MdFe/xJ0fJqp9PeREhqwwiTzD3+ddMrHIH02t55w=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
